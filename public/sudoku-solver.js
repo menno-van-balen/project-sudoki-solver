@@ -1,62 +1,68 @@
 // import { puzzlesAndSolutions } from './puzzle-strings.js';
-const textArea = document.getElementById("text-input");
-const inputCells = document.querySelectorAll(".sudoku-input");
+
+const stringInput = document.getElementById("text-input");
+const grid = document.querySelectorAll(".sudoku-input");
 const errorDiv = document.getElementById("error-msg");
 const solveButton = document.getElementById("solve-button");
-const validValue = /^[0-9.]*$/;
 
 /* Callback functions */
-const validateInput = (string) => {
+// validateSudokuString returns true or false
+const validateString = (string) => {
+  const validValues = /^[0-9.]*$/;
+
   errorDiv.innerText = "";
-  if (!validValue.test(string)) {
+
+  if (!validValues.test(string)) {
     errorDiv.innerText = "Error: invalid character";
-    return false;
   }
+};
+
+const stringToArray = (string) => {
+  return string.split("");
 };
 
 const gridToString = (grid) => {
-  let solutionString = "";
+  let string = "";
   for (let i = 0; i < grid.length; i++) {
     for (let j = 0; j < grid[i].length; j++) {
-      solutionString += grid[i][j];
+      string += grid[i][j];
     }
   }
-  return solutionString;
+  return string;
 };
 
 /* EventHandler functions */
-const textAreaHandler = () => {
-  if (validateInput(textArea.value) === false) return;
+const stringInputHandler = () => {
+  const string = stringInput.value;
+  if (validateString(string) === false) return;
 
-  let textAreaValues = textArea.value.split("");
-  textAreaValues.forEach((val, i) => {
-    inputCells[i].value = val;
+  stringToArray(string).forEach((val, i) => {
+    grid[i].value = val;
   });
 };
 
-const inputCellHandler = () => {
-  let valueString = "";
-  inputCells.forEach((cell) => {
-    valueString += cell.value;
+const gridCellHandler = () => {
+  let sudokuString = "";
+  grid.forEach((cell) => {
+    sudokuString += cell.value;
   });
 
-  if (validateInput(valueString) === false) return;
+  if (validateString(sudokuString) === false) return;
 
-  textArea.value = valueString;
+  stringInput.value = sudokuString;
 };
 
 const solveButtonHandler = () => {
   errorDiv.innerText = "";
 
-  let textAreaValues = textArea.value.split("");
-  let currentGrid = generateGrid(textAreaValues);
-  let solution = solveSudoku(currentGrid);
+  const currentGrid = generateGrid(stringInput.value);
+  const solution = solveSudoku(currentGrid);
 
   if (solution === false) {
     errorDiv.innerText = "No solution for this grid!";
   } else {
-    textArea.value = gridToString(solution);
-    textAreaHandler();
+    stringInput.value = solution;
+    stringInputHandler();
   }
 };
 
@@ -65,12 +71,12 @@ const solveButtonHandler = () => {
 function generateGrid(values) {
   // grid with array for each row
   let grid = [[], [], [], [], [], [], [], [], []];
-  let gridRow = -1;
+  let row = -1;
   for (let i = 0; i < values.length; i++) {
     if (i % 9 === 0) {
-      gridRow += 1;
+      row += 1;
     }
-    grid[gridRow].push(values[i]);
+    grid[row].push(values[i]);
   }
   return grid;
 }
@@ -94,19 +100,20 @@ const checkPossible = (grid, row, col, value) => {
 
   // check boxes:
   // box[x, y] are the uppper left coörditanes of the box, x and y can only be 0, 3, or 6
-  let xBox = Math.floor(row / 3) * 3;
-  let yBox = Math.floor(col / 3) * 3;
+  const xBox = Math.floor(col / 3) * 3;
+  const yBox = Math.floor(row / 3) * 3;
+  const widthBox = xBox + 3;
+  const heigthBox = yBox + 3;
 
   // x is the index looping through the box-column
-  // yy is the index looping through the box-row
-  for (let x = xBox; x < xBox + 3; x++) {
-    for (let y = yBox; y < yBox + 3; y++) {
-      if (grid[x][y] == value) {
+  // y is the index looping through the box-row
+  for (let rowBox = yBox; rowBox < heigthBox; rowBox++) {
+    for (let colBox = xBox; colBox < widthBox; colBox++) {
+      if (grid[rowBox][colBox] == value) {
         return false;
       }
     }
   }
-
   return true;
 };
 
@@ -125,7 +132,7 @@ function solveSudoku(grid, row = 0, col = 0) {
   // base case:
   // if row is 9 loop through grid complete, just return it
   if (row === 9) {
-    return grid;
+    return gridToString(grid);
   }
 
   // if in possition already is a number: start over on next possition
@@ -147,7 +154,7 @@ function solveSudoku(grid, row = 0, col = 0) {
       // else reset the position and continue the for loop
       if (solveSudoku(grid, row, col + 1) !== false) {
         // console.log("!!!");
-        return grid;
+        return gridToString(grid);
         // return solveSudoku(grid, row, col + 1);
       } else {
         grid[row][col] = ".";
@@ -163,16 +170,16 @@ function solveSudoku(grid, row = 0, col = 0) {
 /* Eventlisteners */
 document.addEventListener("DOMContentLoaded", () => {
   // Load a simple puzzle into the text area
-  textArea.value =
+  stringInput.value =
     "..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..";
   // "1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.";
-  textAreaHandler();
+  stringInputHandler();
 });
 
-textArea.oninput = textAreaHandler;
+stringInput.oninput = stringInputHandler;
 
-inputCells.forEach((cell) => {
-  cell.oninput = inputCellHandler;
+grid.forEach((cell) => {
+  cell.oninput = gridCellHandler;
 });
 
 solveButton.onclick = solveButtonHandler;
