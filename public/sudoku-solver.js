@@ -4,10 +4,11 @@ const stringInput = document.getElementById("text-input");
 const grid = document.querySelectorAll(".sudoku-input");
 const errorDiv = document.getElementById("error-msg");
 const solveButton = document.getElementById("solve-button");
+const clearButton = document.getElementById("clear-button");
 
 /* Callback functions */
 // validateSudokuString returns true or false
-const validateString = (string) => {
+const validateInput = (string) => {
   const validValues = /^[1-9.]*$/;
 
   if (!validValues.test(string)) {
@@ -47,12 +48,11 @@ const stringInputHandler = () => {
   const string = stringInput.value;
 
   if (!validateLength(string)) return;
-
-  if (!validateString(string)) return;
-
-  stringToArray(string).forEach((val, i) => {
-    grid[i].value = val;
-  });
+  else if (!validateInput(string)) return;
+  else
+    stringToArray(string).forEach((val, i) => {
+      grid[i].value = val;
+    });
 };
 
 const gridCellHandler = () => {
@@ -64,10 +64,8 @@ const gridCellHandler = () => {
   });
 
   if (!validateLength(string)) return;
-
-  if (!validateString(string)) return;
-
-  stringInput.value = string;
+  else if (!validateInput(string)) return;
+  else stringInput.value = string;
 };
 
 const solveButtonHandler = () => {
@@ -82,6 +80,16 @@ const solveButtonHandler = () => {
     stringInput.value = solution;
     stringInputHandler();
   }
+};
+
+const clearButtonHandler = () => {
+  let string = "";
+  for (let i = 1; i <= 81; i++) {
+    string += ".";
+  }
+
+  stringInput.value = string;
+  stringInputHandler();
 };
 
 /* Sudoku solving logic */
@@ -201,6 +209,8 @@ grid.forEach((cell) => {
 });
 
 solveButton.onclick = solveButtonHandler;
+
+clearButton.onclick = clearButtonHandler;
 
 /* 
   Export your functions for testing in Node.
