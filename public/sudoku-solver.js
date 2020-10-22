@@ -8,13 +8,13 @@ const solveButton = document.getElementById("solve-button");
 /* Callback functions */
 // validateSudokuString returns true or false
 const validateString = (string) => {
-  const validValues = /^[0-9.]*$/;
-
-  errorDiv.innerText = "";
+  const validValues = /^[1-9.]*$/;
 
   if (!validValues.test(string)) {
     errorDiv.innerText = "Error: invalid character";
+    return false;
   }
+  return true;
 };
 
 const stringToArray = (string) => {
@@ -31,10 +31,24 @@ const gridToString = (grid) => {
   return string;
 };
 
+const validateLength = (string) => {
+  const length = string.length;
+  if (length < 81 || length > 81) {
+    errorDiv.innerText = "Error: Expected puzzle to be 81 characters long.";
+    return false;
+  }
+  return true;
+};
+
 /* EventHandler functions */
 const stringInputHandler = () => {
+  errorDiv.innerText = "";
+
   const string = stringInput.value;
-  if (validateString(string) === false) return;
+
+  if (!validateLength(string)) return;
+
+  if (!validateString(string)) return;
 
   stringToArray(string).forEach((val, i) => {
     grid[i].value = val;
@@ -42,14 +56,18 @@ const stringInputHandler = () => {
 };
 
 const gridCellHandler = () => {
-  let sudokuString = "";
+  errorDiv.innerText = "";
+
+  let string = "";
   grid.forEach((cell) => {
-    sudokuString += cell.value;
+    string += cell.value;
   });
 
-  if (validateString(sudokuString) === false) return;
+  if (!validateLength(string)) return;
 
-  stringInput.value = sudokuString;
+  if (!validateString(string)) return;
+
+  stringInput.value = string;
 };
 
 const solveButtonHandler = () => {
