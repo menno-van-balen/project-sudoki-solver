@@ -1,12 +1,10 @@
 // import { puzzlesAndSolutions } from './puzzle-strings.js';
 
 const stringInput = document.getElementById("text-input");
-const grid = document.querySelectorAll(".sudoku-input");
-// const grid = document.getElementsByClassName("sudoku-input");
+const gridArea = document.querySelectorAll(".sudoku-input");
 const errorDiv = document.getElementById("error-msg");
 const solveButton = document.getElementById("solve-button");
 const clearButton = document.getElementById("clear-button");
-console.log(grid);
 
 /* Callback functions */
 const validateInput = (string) => {
@@ -62,7 +60,7 @@ const validateString = (string) => {
 
 const stringToGrid = (string) => {
   stringToArray(string).forEach((val, i) => {
-    grid[i].value = val;
+    gridArea[i].value = val;
   });
 };
 
@@ -85,7 +83,7 @@ const gridCellHandler = () => {
   errorDiv.innerText = "";
 
   let string = "";
-  grid.forEach((cell) => {
+  gridArea.forEach((cell) => {
     string += cell.value;
   });
 
@@ -129,7 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 stringInput.oninput = stringInputHandler;
 
-grid.forEach((cell) => {
+gridArea.forEach((cell) => {
   cell.oninput = gridCellHandler;
 });
 
