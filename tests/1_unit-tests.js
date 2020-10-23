@@ -21,20 +21,6 @@ suite("UnitTests", () => {
       global.document = dom.window.document;
 
       Solver = require("../public/sudoku-solver.js");
-      const {
-        validateInput,
-        stringToArray,
-        gridToString,
-        validateLength,
-        stringInputHandler,
-        gridCellHandler,
-        solveButtonHandler,
-        clearButtonHandler,
-        generateGrid,
-        checkPossible,
-        solveSudoku,
-      } = Solver;
-      // console.log(Solver);
     });
   });
 
@@ -74,6 +60,7 @@ suite("UnitTests", () => {
       const stringInput = document.getElementById("text-input");
       const input =
         "..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..";
+
       stringInput.innerText = input;
       assert.equal(stringInput.innerText, input);
       done();
@@ -100,28 +87,40 @@ suite("UnitTests", () => {
   suite("Function ____()", () => {
     // Valid complete puzzles pass
     test("Valid puzzles pass", (done) => {
+      const errorDiv = document.getElementById("error-msg");
       const input =
         "769235418851496372432178956174569283395842761628713549283657194516924837947381625";
-
-      // done();
+      const result = Solver.validateString(input);
+      assert.equal(result, true);
+      assert.equal(errorDiv.innerText, "Well done!!!");
+      done();
     });
 
     // Invalid complete puzzles fail
     test("Invalid puzzles fail", (done) => {
+      const errorDiv = document.getElementById("error-msg");
       const input =
         "779235418851496372432178956174569283395842761628713549283657194516924837947381625";
-
-      // done();
+      const result = Solver.validateString(input);
+      assert.equal(result, false);
+      assert.equal(errorDiv.innerText, "This solution is not possible");
+      done();
     });
   });
 
   suite("Function ____()", () => {
     // Returns the expected solution for a valid, incomplete puzzle
+
     test("Returns the expected solution for an incomplete puzzle", (done) => {
+      const errorDiv = document.getElementById("error-msg");
       const input =
         "..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..";
-
-      // done();
+      const grid = Solver.generateGrid(input);
+      const solution = Solver.solveSudoku(grid);
+      const result = Solver.validateString(solution);
+      assert.equal(result, true);
+      assert.equal(errorDiv.innerText, "Well done!!!");
+      done();
     });
   });
 });

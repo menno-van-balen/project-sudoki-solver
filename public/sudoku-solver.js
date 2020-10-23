@@ -2,9 +2,11 @@
 
 const stringInput = document.getElementById("text-input");
 const grid = document.querySelectorAll(".sudoku-input");
+// const grid = document.getElementsByClassName("sudoku-input");
 const errorDiv = document.getElementById("error-msg");
 const solveButton = document.getElementById("solve-button");
 const clearButton = document.getElementById("clear-button");
+console.log(grid);
 
 /* Callback functions */
 const validateInput = (string) => {
@@ -47,13 +49,21 @@ const validateString = (string) => {
       const value = grid[row][col];
       if (!checkPossible(grid, row, col, value)) {
         errorDiv.innerText = "This solution is not possible";
-        console.log(`grid[${row},${col}] number ${grid[row][col]} false`);
+        console.log(
+          `possition grid[${col},${row}] number ${grid[row][col]} is false`
+        );
         return false;
       }
     }
   }
   errorDiv.innerText = "Well done!!!";
   return true;
+};
+
+const stringToGrid = (string) => {
+  stringToArray(string).forEach((val, i) => {
+    grid[i].value = val;
+  });
 };
 
 /* EventHandler functions */
@@ -66,14 +76,9 @@ const stringInputHandler = () => {
   if (!validateLength(string)) return;
   else if (!validateInput(string)) return;
   else if (onlyNums.test(string) && string.length === 81) {
-    stringToArray(string).forEach((val, i) => {
-      grid[i].value = val;
-    });
+    stringToGrid(string);
     validateString(string);
-  } else
-    stringToArray(string).forEach((val, i) => {
-      grid[i].value = val;
-    });
+  } else stringToGrid(string);
 };
 
 const gridCellHandler = () => {
@@ -245,6 +250,7 @@ try {
     gridToString,
     validateLength,
     validateString,
+    stringToGrid,
     stringInputHandler,
     gridCellHandler,
     solveButtonHandler,
@@ -253,6 +259,4 @@ try {
     checkPossible,
     solveSudoku,
   };
-} catch (e) {
-  console.log(e);
-}
+} catch {}
