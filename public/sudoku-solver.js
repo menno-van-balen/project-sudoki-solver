@@ -7,11 +7,10 @@ const solveButton = document.getElementById("solve-button");
 const clearButton = document.getElementById("clear-button");
 
 /* Callback functions */
-// validateSudokuString returns true or false
 const validateInput = (string) => {
-  const validValues = /^[1-9.]*$/;
+  const validCharacter = /^[1-9.]*$/;
 
-  if (!validValues.test(string)) {
+  if (!validCharacter.test(string)) {
     errorDiv.innerText = "Error: invalid character";
     return false;
   }
@@ -41,15 +40,37 @@ const validateLength = (string) => {
   return true;
 };
 
+const validateString = (string) => {
+  const grid = generateGrid(string);
+  for (let col = 0; col < 9; col++) {
+    for (let row = 0; row < 9; row++) {
+      const value = grid[row][col];
+      if (!checkPossible(grid, row, col, value)) {
+        errorDiv.innerText = "This solution is not possible";
+        console.log(`grid[${row},${col}] number ${grid[row][col]} false`);
+        return false;
+      }
+    }
+  }
+  errorDiv.innerText = "Well done!!!";
+  return true;
+};
+
 /* EventHandler functions */
 const stringInputHandler = () => {
   errorDiv.innerText = "";
 
+  const onlyNums = /^[1-9]*$/;
   const string = stringInput.value;
 
   if (!validateLength(string)) return;
   else if (!validateInput(string)) return;
-  else
+  else if (onlyNums.test(string) && string.length === 81) {
+    stringToArray(string).forEach((val, i) => {
+      grid[i].value = val;
+    });
+    validateString(string);
+  } else
     stringToArray(string).forEach((val, i) => {
       grid[i].value = val;
     });
@@ -92,6 +113,25 @@ const clearButtonHandler = () => {
   stringInputHandler();
 };
 
+/* Eventlisteners */
+document.addEventListener("DOMContentLoaded", () => {
+  // Load a simple puzzle into the text area
+  stringInput.value =
+    "..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..";
+  // "1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.";
+  stringInputHandler();
+});
+
+stringInput.oninput = stringInputHandler;
+
+grid.forEach((cell) => {
+  cell.oninput = gridCellHandler;
+});
+
+solveButton.onclick = solveButtonHandler;
+
+clearButton.onclick = clearButtonHandler;
+
 /* Sudoku solving logic */
 //values is an array or string with 81 valid values (the textArea), returns a gid
 function generateGrid(values) {
@@ -112,14 +152,14 @@ function generateGrid(values) {
 const checkPossible = (grid, row, col, value) => {
   // check row
   for (let i = 0; i < 9; i++) {
-    if (grid[row][i] == value) {
+    if (grid[row][i] == value && i != col) {
       return false;
     }
   }
 
   // check column
   for (let j = 0; j < 9; j++) {
-    if (grid[j][col] == value) {
+    if (grid[j][col] == value && j != row) {
       return false;
     }
   }
@@ -135,7 +175,7 @@ const checkPossible = (grid, row, col, value) => {
   // y is the index looping through the box-row
   for (let rowBox = yBox; rowBox < heigthBox; rowBox++) {
     for (let colBox = xBox; colBox < widthBox; colBox++) {
-      if (grid[rowBox][colBox] == value) {
+      if (grid[rowBox][colBox] == value && rowBox != row && colBox != col) {
         return false;
       }
     }
@@ -193,30 +233,26 @@ function solveSudoku(grid, row = 0, col = 0) {
   return false;
 }
 
-/* Eventlisteners */
-document.addEventListener("DOMContentLoaded", () => {
-  // Load a simple puzzle into the text area
-  stringInput.value =
-    "..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..";
-  // "1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.";
-  stringInputHandler();
-});
-
-stringInput.oninput = stringInputHandler;
-
-grid.forEach((cell) => {
-  cell.oninput = gridCellHandler;
-});
-
-solveButton.onclick = solveButtonHandler;
-
-clearButton.onclick = clearButtonHandler;
-
 /* 
   Export your functions for testing in Node.
   Note: The `try` block is to prevent errors on
   the client side
 */
 try {
-  module.exports = {};
-} catch (e) {}
+  module.exports = {
+    validateInput,
+    stringToArray,
+    gridToString,
+    validateLength,
+    validateString,
+    stringInputHandler,
+    gridCellHandler,
+    solveButtonHandler,
+    clearButtonHandler,
+    generateGrid,
+    checkPossible,
+    solveSudoku,
+  };
+} catch (e) {
+  console.log(e);
+}
